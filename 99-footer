@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+#    99-footer - write the admin's footer to the MOTD
+#    Allows for adding other text to the end of the dynamic motd
+
+[ -f /etc/motd.tail ] && cat /etc/motd.tail || true

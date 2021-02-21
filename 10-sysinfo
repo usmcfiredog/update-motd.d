@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+#    10-sysinfo - generate the system information
+#    Displays system info like landscape sysinfo on Ubuntu
+#
+
+date=`date`
+load=`cat /proc/loadavg | awk '{print $1}'`
+root_usage=`df -H / | awk '/\// {print $(NF-1)}'`
+root_available=`df -H / | awk '/\// {print$(NF-4)}'`
+memory_usage=`free -m | awk '/Mem/ { printf("%3.1f%%", $3/$2*100) }'`
+swap_usage=`free -m | awk '/Swap/ { printf("%3.1f%%", $3/$2*100) }'`
+processes=`ps -e --no-headers | wc -l`
+users=`users | wc -w`
+numofips=`ip add | grep global | grep -v "mngtmpaddr" | wc -l`
+
+echo "  System information as of $date"
+echo
+printf "  System load:\t\t\t%s\n" $load
+printf "  Usage of /:\t\t\t%s of %s\n" $root_usage $root_available
+printf "  Memory usage:\t\t\t%s\n" $memory_usage
+printf "  Swap usage:\t\t\t%s\n" $swap_usage
+printf "  Processes:\t\t\t%s\n" $processes
+printf "  Users logged in:\t\t$users\n"
+for number in $(seq $numofips); do
+    ipadd=`ip add | grep global | grep -v "mngtmpaddr" | awk '{print $2}' | sed -n ${number}p | cut -f1 -d/`
+    ipint=`ip add show to ${ipadd} | awk -F ": " 'NF > 1 {print $2}'`
+if [[ "$ipadd" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+    printf "  IPv4 address for ${ipint}:\t$ipadd \n"
+else
+    printf "  IPv6 address for ${ipint}:\t$ipadd \n"
+fi
+done
+
+echo
