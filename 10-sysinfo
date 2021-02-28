@@ -10,6 +10,7 @@ root_usage=`df -H / | awk '/\// {print $(NF-1)}'`
 root_available=`df -H / | awk '/\// {print$(NF-4)}'`
 memory_usage=`free -m | awk '/Mem/ { printf("%3.1f%%", $3/$2*100) }'`
 swap_usage=`free -m | awk '/Swap/ { printf("%3.1f%%", $3/$2*100) }'`
+temperature=`[ -f /sys/class/thermal/thermal_zone0/temp ] && head -n 1 /sys/class/thermal/thermal_zone0/temp | xargs -I{} awk "BEGIN {printf \"%.1f\n\", {}/1000}"`
 processes=`ps -e --no-headers | wc -l`
 users=`users | wc -w`
 numofips=`ip add | grep global | grep -v "mngtmpaddr" | wc -l`
@@ -19,7 +20,8 @@ echo
 printf "  System load:\t\t\t%s\n" $load
 printf "  Usage of /:\t\t\t%s of %s\n" $root_usage $root_available
 printf "  Memory usage:\t\t\t%s\n" $memory_usage
-printf "  Swap usage:\t\t\t%s\n" $swap_usage
+[ `free -m | awk '/Swap/ { printf($2) }'` -ne 0 ] && printf "  Swap usage:\t\t\t%s\n" $swap_usage
+[ -f /sys/class/thermal/thermal_zone0/temp ] && printf "  Temberature:\t\t\t%s C\n" $temperature
 printf "  Processes:\t\t\t%s\n" $processes
 printf "  Users logged in:\t\t$users\n"
 for number in $(seq $numofips); do
