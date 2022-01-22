@@ -3,4 +3,4 @@
 #   98-reboot-required - checks to see if the system needs to be rebooted
 #   checks for for the reboot-required file and cats out the file if present
 
-[ -f /var/run/reboot-required ] && cat /var/run/reboot-required || true
+[ -f /var/run/reboot-required ] && echo '*** System restart required ***'
